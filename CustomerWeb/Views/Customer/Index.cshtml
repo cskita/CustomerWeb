@@ -1,0 +1,134 @@
+﻿@model CustomerWeb.Models.Customer.InputModel.CustomerInputModel
+@{
+    ViewData["Title"] = "Customers List";
+}
+
+<h2>Customers List</h2>
+
+@using (Html.BeginForm("Index", "Customer", FormMethod.Post))
+{
+    <fieldset>
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true)
+        <div class="container">
+            <div class="row col-sm-12 col-md-12 col-12">
+                <div class="form-group col-12">
+                    <label asp-for="@Html.ViewData.Model.Name" class="col-sm-6 col-form-label">Name</label>
+                    @Html.TextBoxFor(model => model.Name, new { @class = "form-control col-sm-6" })
+                </div>
+                @if (ViewData["Genders"] != null)
+                {
+                    <div class="form-group col-3">
+                        <label asp-for="@Html.ViewData.Model.GenderId" class="col-sm-12 col-form-label">Gender</label>
+                        @Html.DropDownList("GenderId", (IEnumerable<SelectListItem>)ViewBag.Genders, String.Empty, new { @class = "form-control" })
+                    </div>
+                }
+                @if (@ViewBag.Classifications != null)
+                {
+                    <div class="form-group col-3">
+                        <label asp-for="@Html.ViewData.Model.ClassificationId" class="col-sm-12 col-form-label">Classification</label>
+                        @Html.DropDownList("ClassificationId", (IEnumerable<SelectListItem>)ViewBag.Classifications, String.Empty, new { @class = "form-control" })
+                    </div>
+                }
+                @if (@ViewBag.Cities != null)
+                {
+                    <div class="form-group col-3">
+                        <label asp-for="@Html.ViewData.Model.CityId" class="col-sm-12 col-form-label">City</label>
+                        @Html.DropDownList("CityId", (IEnumerable<SelectListItem>)ViewBag.Cities, String.Empty, new { @class = "form-control" })
+                    </div>
+                }
+                @if (@ViewBag.Regions != null)
+                {
+                    <div class="form-group col-3">
+                        <label asp-for="@Html.ViewData.Model.RegionId" class="col-sm-12 col-form-label">Region</label>
+                        @Html.DropDownList("RegionId", (IEnumerable<SelectListItem>)ViewBag.Regions, String.Empty, new { @class = "form-control" })
+                    </div>
+                }
+                <div class="form-group col-6">
+                    <label asp-for="@Html.ViewData.Model.LastPurchase" class="col-sm-12 col-form-label">Last Purchase Initial</label>
+                    @Html.TextBoxFor(model => model.LastPurchase, new { @class = "form-control", type = "date" })
+                </div>
+                <div class="form-group col-6">
+                    <label asp-for="@Html.ViewData.Model.LastPurchase" class="col-sm-12 col-form-label">Last Purchase Final</label>
+                    @Html.TextBoxFor(model => model.LastPurchase, new { @class = "form-control", type = "date" })
+                </div>
+                @if (@ViewBag.IsAdmin)
+                {
+                    <div class="form-group col-6">
+                        <label asp-for="@Html.ViewData.Model.UserId" class="col-sm-12 col-form-label">Seller</label>
+                        @Html.TextBoxFor(model => model.UserId, new { @class = "form-control" })
+                    </div>
+                }
+            <div class="form-group col-12">
+                <input type="submit" class="btn btn-secondary" value="Search" />
+                <input type="button" class="btn btn-secondary" value="Clear Filters" />
+            </div>
+            </div>
+        </div>
+    </fieldset>
+}
+
+@if (@ViewBag.Customer != null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.ClassificationId)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Phone)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.GenderId)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.RegionId)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.LastPurchase)
+                </th>
+                @if (@ViewBag.IsAdmin)
+                {
+                    <th>
+                        @Html.DisplayNameFor(model => model.UserId)
+                    </th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in ViewBag.Customer as IEnumerable<CustomerWeb.Models.Customer.ViewModel.CustomerViewModel>)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ClassificationId)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Phone)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.GenderId)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.RegionId)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.LastPurchase)
+                    </td>
+                    @if (@ViewBag.IsAdmin)
+                    {
+                        <td>
+                            @Html.DisplayFor(modelItem => item.UserId)
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+}

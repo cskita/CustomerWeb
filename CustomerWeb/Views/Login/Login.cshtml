@@ -1,0 +1,38 @@
+﻿@model CustomerWeb.Models.Authorization.InputModel.AuthorizationInputModel
+@{
+    ViewData["Title"] = "Login";
+}
+<div class="login-box">
+    @using (Html.BeginForm("Login", "Login", FormMethod.Post))
+    {
+        <fieldset>
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+            <div class="box box-primary col-sm-12">
+                <div class="form-group">
+                    <label asp-for="@Html.ViewData.Model.Email" class="col-sm-12 col-form-label">E-mail</label>
+                    <div class="col-sm-12">
+                        @Html.TextBoxFor(model => model.Email, new { @class = "form-control", placeholder = "email@app.com.br" })
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="invalid-feedback" style="display:block;">
+                            @Html.ValidationMessageFor(a => a.Email)
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label asp-for="@Html.ViewData.Model.Password" class="col-sm-12 col-form-label">Password</label>
+                    <div class="col-sm-12">
+                        @Html.PasswordFor(model => model.Password, new { @class = "form-control", placeholder = "password" })
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="invalid-feedback" style="display:block;">
+                            @Html.ValidationMessageFor(a => a.Password)
+                        </div>
+                    </div>
+                </div>
+                <input type="submit" class="btn btn-primary btn-block btn-flat col-sm-12" value="Login" />
+            </div>
+        </fieldset>
+    }
+</div>
