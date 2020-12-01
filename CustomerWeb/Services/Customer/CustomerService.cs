@@ -26,24 +26,15 @@ namespace CustomerWeb.Services.Customer
         {
             try
             {
-                var response = _restAPIService.Request(new RequestAPI
+                var requestAPI = new RequestAPI
                 {
                     ContentType = _contentType,
                     Route = _route,
-                    MethodType = RequestMethodType.Get
-                });
+                    MethodType = RequestMethodType.Get,
+                    Body = customerInputModel
+                };
 
-                string content = response.Content.ReadAsStringAsync().Result;
-
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    var responseAPI = JsonConvert.DeserializeObject<ResponseAPI<List<CustomerViewModel>>>(content);
-
-                    if (responseAPI.Success && responseAPI.Data != null)
-                        return BaseResult<IEnumerable<CustomerViewModel>>.OK(responseAPI.Data);
-                }
-
-                return BaseResult<IEnumerable<CustomerViewModel>>.NotOK("An error occurred while communicating with the server. Please try again.");
+                return _restAPIService.Request<IEnumerable<CustomerViewModel>>(requestAPI);
             }
             catch (Exception e)
             {

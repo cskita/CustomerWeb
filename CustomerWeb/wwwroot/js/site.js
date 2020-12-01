@@ -1,4 +1,4 @@
-﻿jQuery.validator.setDefaults({
+﻿/*jQuery.validator.setDefaults({
     onfocusout: function (e) {
         this.element(e);
     },
@@ -21,4 +21,4 @@
             error.insertAfter(element);
         }
     },
-});
+});*/

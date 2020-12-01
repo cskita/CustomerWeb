@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
-using CustomerWeb.Models.City.ViewModel;
 using CustomerWeb.Models.Common;
+using CityModel = CustomerWeb.Models.City.City;
 
 namespace CustomerWeb.Services.City
 {
     public interface ICityService
     {
-        BaseResult<IEnumerable<CityViewModel>> Get();
+        BaseResult<IEnumerable<CityModel>> Get();
+        BaseResult<CityModel> GetById(int? id);
     }
 }

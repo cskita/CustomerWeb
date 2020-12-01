@@ -1,20 +1,23 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using CustomerWeb.Extensions;
 using CustomerWeb.Services.Customer;
 using CustomerWeb.Models.Customer.InputModel;
 using CustomerWeb.Models.Customer.ViewModel;
 using CustomerWeb.Models.Common;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using CustomerWeb.Services.City;
-using CustomerWeb.Models.City.ViewModel;
+using CustomerWeb.Models.City;
 using CustomerWeb.Services.Classification;
 using CustomerWeb.Services.Gender;
 using CustomerWeb.Services.Region;
-using CustomerWeb.Models.Classification.ViewModel;
-using CustomerWeb.Models.Gender.ViewModel;
-using CustomerWeb.Models.Region.ViewModel;
-using Microsoft.AspNetCore.Authorization;
+using CustomerWeb.Models.Classification;
+using CustomerWeb.Models.Gender;
+using CustomerWeb.Models.Region;
+using CustomerWeb.Models.Seller;
+using CustomerWeb.Services.Seller;
+using CustomerWeb.Services.Common;
 
 namespace CustomerWeb.Controllers
 {
@@ -27,6 +30,8 @@ namespace CustomerWeb.Controllers
         private readonly IClassificationService _classificationService;
         private readonly IGenderService _genderService;
         private readonly IRegionService _regionService;
+        private readonly ISellerService _sellerService;
+        private readonly IFieldService _fieldService;
 
         private bool _isAuthenticated;
 
@@ -34,19 +39,22 @@ namespace CustomerWeb.Controllers
                                   ICityService cityService,
                                   IClassificationService classificationService,
                                   IGenderService genderService,
-                                  IRegionService regionService)
+                                  IRegionService regionService,
+                                  ISellerService sellerService,
+                                  IFieldService fieldService)
         {
             _customerService = customerService;
             _cityService = cityService;
             _classificationService = classificationService;
             _genderService = genderService;
             _regionService = regionService;
+            _sellerService = sellerService;
+            _fieldService = fieldService;
 
             ViewData["Messages"] = null;
             ViewData["IsAdmin"] = false;
             ViewData["LoggedIn"] = _isAuthenticated;
 
-            InitializeDropDowns();
         }
 
         public ActionResult Index()
@@ -58,11 +66,64 @@ namespace CustomerWeb.Controllers
             if (_isAuthenticated)
                 ViewData["IsAdmin"] = HttpContext.Session.GetUserSession().IsAdmin;
 
-            InitializeDropDowns();
+            var customer = GetFilters();
 
-            return View();
+            return View(customer);
         }
-        
+
+        [HttpGet]
+        public ActionResult GetRegions(int? cityId)
+        {
+            if (cityId.HasValue)
+                return GetRegionsByCityId(cityId.Value);
+
+            return Json(GetRegions());
+        }
+
+        public ActionResult GetRegionsByCityId(int cityId)
+        {
+            BaseResult<City> result = _cityService.GetById(cityId);
+
+            if (result.Success && result.Data != null)
+            {
+                BaseResult<Region> resultRegion = _regionService.GetById(result.Data.RegionId);
+
+                if (resultRegion.Success)
+                {
+                    var regions = new SelectList
+                        (
+                            new[] { resultRegion.Data },
+                            "Id",
+                            "Name"
+                        );
+
+                    return Json(regions);
+                }
+            }
+
+            return null;
+        }
+
+        [HttpGet]
+        public ActionResult GetCitiesByRegionId(int? regionId)
+        {
+            BaseResult<City> result = _cityService.GetById(regionId);
+
+            if (result.Success)
+            {
+                IEnumerable<SelectListItem> regions = new SelectList
+                    (
+                        (System.Collections.IEnumerable)result.Data,
+                        "Id",
+                        "Name"
+                    );
+
+                return Json(regions);
+            }
+
+            return null;
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Index(CustomerInputModel customerInputModel)
@@ -77,7 +138,7 @@ namespace CustomerWeb.Controllers
 
             if (!(userSession?.IsAdmin ?? false))
             {
-                customerInputModel.UserId = userSession.Id;
+                customerInputModel.SellerId = userSession.Id;
             }
 
             BaseResult<IEnumerable<CustomerViewModel>> result = _customerService.Get(customerInputModel);
@@ -92,67 +153,88 @@ namespace CustomerWeb.Controllers
                 ViewData["Customer"] = result.Data;
             }
 
-            InitializeDropDowns();
-
             return View();
         }
 
         #region DropDown
-        private void InitializeDropDowns()
+
+        public CustomerInputModel GetFilters()
         {
-            InitializeDropDownCities();
-            InitializeDropDownClassifications();
-            InitializeDropDownGenders();
-            InitializeDropDownRegions();
+            var customer = new CustomerInputModel()
+            {
+                Cities = GetCities(),
+                Regions = GetRegions(),
+                Classifications = GetClassifications(),
+                Genders = GetGenders(),
+                Sellers = _fieldService.GetDropDownList(_sellerService.Get())
+            };
+
+            return customer;
         }
 
-        private void InitializeDropDownCities()
+        private IEnumerable<SelectListItem> GetCities()
         {
-            BaseResult<IEnumerable<CityViewModel>> result = _cityService.Get();
+            BaseResult<IEnumerable<City>> result = _cityService.Get();
 
-            ViewData["Cities"] = null;
             if (result.Success)
             {
-                CreateDropDown("Cities", result.Data);
+                return CreateDropDown(result.Data);
             }
+
+            return null;
         }
 
-        private void InitializeDropDownClassifications()
+        private IEnumerable<SelectListItem> GetRegions()
         {
-            BaseResult<IEnumerable<ClassificationViewModel>> result = _classificationService.Get();
+            BaseResult<IEnumerable<Region>> result = _regionService.Get();
 
-            ViewData["Classifications"] = null;
             if (result.Success)
             {
-                CreateDropDown("Classifications", result.Data);
+                return CreateDropDown(result.Data);
             }
+
+            return null;
         }
 
-        private void InitializeDropDownGenders()
+        private IEnumerable<SelectListItem> GetGenders()
         {
-            BaseResult<IEnumerable<GenderViewModel>> result = _genderService.Get();
+            BaseResult<IEnumerable<Gender>> result = _genderService.Get();
 
-            ViewData["Genders"] = null;
             if (result.Success)
             {
-                CreateDropDown("Genders", result.Data);
+                return CreateDropDown(result.Data);
             }
+
+            return null;
         }
 
-        private void InitializeDropDownRegions()
+        private IEnumerable<SelectListItem> GetClassifications()
         {
-            BaseResult<IEnumerable<RegionViewModel>> result = _regionService.Get();
+            BaseResult<IEnumerable<Classification>> result = _classificationService.Get();
 
-            ViewData["Regions"] = null;
             if (result.Success)
             {
-                CreateDropDown("Regions", result.Data);
+                return CreateDropDown(result.Data);
             }
+
+            return null;
         }
 
-        private void CreateDropDown(string name, IEnumerable<object> data)
+        private IEnumerable<SelectListItem> GetSellers()
         {
-            ViewData[name] = new SelectList
+            BaseResult<IEnumerable<Seller>> result = _sellerService.Get();
+
+            if (result.Success)
+            {
+                return CreateDropDown(result.Data);
+            }
+
+            return null;
+        }
+
+        private SelectList CreateDropDown(IEnumerable<object> data)
+        {
+            return new SelectList
             (
                 data,
                 "Id",

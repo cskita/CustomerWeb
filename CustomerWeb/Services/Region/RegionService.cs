@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Net;
 using System.Collections.Generic;
-using Newtonsoft.Json;
 using CustomerWeb.Models.Common;
-using CustomerWeb.Models.Region.ViewModel;
 using CustomerWeb.Models.Enumerable;
 using CustomerWeb.Services.Common;
+using RegionModel = CustomerWeb.Models.Region.Region;
 
 namespace CustomerWeb.Services.Region
 {
@@ -21,33 +19,43 @@ namespace CustomerWeb.Services.Region
             _restAPIService = restAPIService;
         }
 
-        public BaseResult<IEnumerable<RegionViewModel>> Get()
+        public BaseResult<IEnumerable<RegionModel>> Get()
         {
             try
             {
-                var response = _restAPIService.Request(new RequestAPI
+                var requestAPI = new RequestAPI
                 {
                     ContentType = _contentType,
                     Route = _route,
                     MethodType = RequestMethodType.Get
-                });
+                };
 
-                string content = response.Content.ReadAsStringAsync().Result;
-
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    var responseAPI = JsonConvert.DeserializeObject<ResponseAPI<List<RegionViewModel>>>(content);
-
-                    if (responseAPI.Success && responseAPI.Data != null)
-                        return BaseResult<IEnumerable<RegionViewModel>>.OK(responseAPI.Data);
-                }
-
-                return BaseResult<IEnumerable<RegionViewModel>>.NotOK("An error occurred while communicating with the server. Please try again.");
+                return _restAPIService.Request<IEnumerable<RegionModel>>(requestAPI);
             }
             catch (Exception e)
             {
-                return BaseResult<IEnumerable<RegionViewModel>>.NotOK(e.Message);
+                return BaseResult<IEnumerable<RegionModel>>.NotOK(e.Message);
             }
         }
+
+        public BaseResult<RegionModel> GetById(int? id)
+        {
+            try
+            {
+                var requestAPI = new RequestAPI
+                {
+                    ContentType = _contentType,
+                    Route = $"{_route}/{id}",
+                    MethodType = RequestMethodType.Get
+                };
+
+                return _restAPIService.Request<RegionModel>(requestAPI);
+            }
+            catch (Exception e)
+            {
+                return BaseResult<RegionModel>.NotOK(e.Message);
+            }
+        }
+
     }
 }

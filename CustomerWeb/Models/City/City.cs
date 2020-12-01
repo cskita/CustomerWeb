@@ -1,6 +1,6 @@
-﻿namespace CustomerWeb.Models.City.ViewModel
+﻿namespace CustomerWeb.Models.City
 {
-    public class CityViewModel
+    public class City
     {
         public int Id { get; set; }
         public string Name { get; set; }

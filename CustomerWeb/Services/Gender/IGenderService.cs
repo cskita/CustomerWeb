@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using CustomerWeb.Models.Common;
-using CustomerWeb.Models.Gender.ViewModel;
+using GenderModel = CustomerWeb.Models.Gender.Gender;
 
 namespace CustomerWeb.Services.Gender
 {
     public interface IGenderService
     {
-        BaseResult<IEnumerable<GenderViewModel>> Get();
+        BaseResult<IEnumerable<GenderModel>> Get();
     }
 }

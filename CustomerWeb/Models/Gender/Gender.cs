@@ -1,6 +1,6 @@
-﻿namespace CustomerWeb.Models.Region.ViewModel
+﻿namespace CustomerWeb.Models.Gender
 {
-    public class RegionViewModel
+    public class Gender
     {
         public int Id { get; set; }
         public string Name { get; set; }

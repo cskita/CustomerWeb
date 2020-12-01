@@ -9,6 +9,9 @@ using CustomerWeb.Models.Common;
 using Microsoft.AspNetCore.Http;
 using CustomerWeb.Extensions;
 using CustomerWeb.Models.Enumerable;
+using System.Linq;
+using System;
+using System.Web;
 
 namespace CustomerWeb.Services.Common
 {
@@ -40,6 +43,15 @@ namespace CustomerWeb.Services.Common
             return httpClient;
         }
 
+        private string GetQueryString(object obj)
+        {
+            var properties = from p in obj.GetType().GetProperties()
+                             where p.GetValue(obj, null) != null
+                             select p.Name + "=" + HttpUtility.UrlEncode(p.GetValue(obj, null).ToString());
+
+            return String.Join("&", properties.ToArray());
+        }
+
         public HttpResponseMessage Request(RequestAPI requestAPI)
         {
             string url = $"{_customerAPIOptions.EndPointUrl}/{requestAPI.Route}";
@@ -48,6 +60,13 @@ namespace CustomerWeb.Services.Common
 
             if (requestAPI.MethodType == RequestMethodType.Get)
             {
+                if (requestAPI.Body != null)
+                {
+                    var queryParams = GetQueryString(requestAPI.Body);
+                    if (!String.IsNullOrEmpty(queryParams))
+                        url = $"{url}?{queryParams}";
+                }
+
                 return httpClient.GetAsync(url).Result;
             }
             else
@@ -58,6 +77,56 @@ namespace CustomerWeb.Services.Common
                         JsonConvert.SerializeObject(requestAPI.Body),
                         Encoding.UTF8,
                         requestAPI.ContentType)).Result;
+            }
+        }
+
+        public BaseResult<T> Request<T>(RequestAPI requestAPI) where T : class
+        {
+            try
+            {
+                string url = $"{_customerAPIOptions.EndPointUrl}/{requestAPI.Route}";
+
+                HttpResponseMessage response;
+
+                var httpClient = RequestHeader();
+
+                if (requestAPI.MethodType == RequestMethodType.Get)
+                {
+                    if (requestAPI.Body != null)
+                    {
+                        var queryParams = GetQueryString(requestAPI.Body);
+
+                        if (!String.IsNullOrEmpty(queryParams))
+                            url = $"{url}?{queryParams}";
+                    }
+
+                    response = httpClient.GetAsync(url).Result;
+                }
+                else
+                {
+                    response = httpClient.PostAsync(
+                        url,
+                        new StringContent(
+                            JsonConvert.SerializeObject(requestAPI.Body),
+                            Encoding.UTF8,
+                            requestAPI.ContentType)).Result;
+                }
+
+                string content = response.Content.ReadAsStringAsync().Result;
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    ResponseAPI<T> responseAPI = JsonConvert.DeserializeObject<ResponseAPI<T>>(content);
+
+                    if (responseAPI.Success && responseAPI.Data != null)
+                        return BaseResult<T>.OK(responseAPI.Data);
+                }
+
+                return BaseResult<T>.NotOK("An error occurred while communicating with the server. Please try again.");
+            }
+            catch (Exception e)
+            {
+                return BaseResult<T>.NotOK(e.Message);
             }
         }
 

@@ -3,23 +3,24 @@ using System.Collections.Generic;
 using CustomerWeb.Models.Common;
 using CustomerWeb.Models.Enumerable;
 using CustomerWeb.Services.Common;
-using GenderModel = CustomerWeb.Models.Gender.Gender;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using SellerModel = CustomerWeb.Models.Seller.Seller;
 
-namespace CustomerWeb.Services.Gender
+namespace CustomerWeb.Services.Seller
 {
-    public class GenderService : IGenderService
+    public class SellerService : ISellerService
     {
         private readonly IRestAPIService _restAPIService;
 
-        private string _route = "gender";
+        private string _route = "seller";
         private string _contentType = "application/json";
 
-        public GenderService(IRestAPIService restAPIService)
+        public SellerService(IRestAPIService restAPIService)
         {
             _restAPIService = restAPIService;
         }
 
-        public BaseResult<IEnumerable<GenderModel>> Get()
+        public BaseResult<IEnumerable<SellerModel>> Get()
         {
             try
             {
@@ -30,12 +31,13 @@ namespace CustomerWeb.Services.Gender
                     MethodType = RequestMethodType.Get
                 };
 
-                return _restAPIService.Request<IEnumerable<GenderModel>>(requestAPI);
+                return _restAPIService.Request<IEnumerable<SellerModel>>(requestAPI);
             }
             catch (Exception e)
             {
-                return BaseResult<IEnumerable<GenderModel>>.NotOK(e.Message);
+                return BaseResult<IEnumerable<SellerModel>>.NotOK(e.Message);
             }
         }
+
     }
 }

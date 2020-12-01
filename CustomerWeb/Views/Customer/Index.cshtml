@@ -16,53 +16,42 @@
                     <label asp-for="@Html.ViewData.Model.Name" class="col-sm-6 col-form-label">Name</label>
                     @Html.TextBoxFor(model => model.Name, new { @class = "form-control col-sm-6" })
                 </div>
-                @if (ViewData["Genders"] != null)
-                {
-                    <div class="form-group col-3">
-                        <label asp-for="@Html.ViewData.Model.GenderId" class="col-sm-12 col-form-label">Gender</label>
-                        @Html.DropDownList("GenderId", (IEnumerable<SelectListItem>)ViewBag.Genders, String.Empty, new { @class = "form-control" })
-                    </div>
-                }
-                @if (@ViewBag.Classifications != null)
-                {
-                    <div class="form-group col-3">
-                        <label asp-for="@Html.ViewData.Model.ClassificationId" class="col-sm-12 col-form-label">Classification</label>
-                        @Html.DropDownList("ClassificationId", (IEnumerable<SelectListItem>)ViewBag.Classifications, String.Empty, new { @class = "form-control" })
-                    </div>
-                }
-                @if (@ViewBag.Cities != null)
-                {
-                    <div class="form-group col-3">
-                        <label asp-for="@Html.ViewData.Model.CityId" class="col-sm-12 col-form-label">City</label>
-                        @Html.DropDownList("CityId", (IEnumerable<SelectListItem>)ViewBag.Cities, String.Empty, new { @class = "form-control" })
-                    </div>
-                }
-                @if (@ViewBag.Regions != null)
-                {
-                    <div class="form-group col-3">
-                        <label asp-for="@Html.ViewData.Model.RegionId" class="col-sm-12 col-form-label">Region</label>
-                        @Html.DropDownList("RegionId", (IEnumerable<SelectListItem>)ViewBag.Regions, String.Empty, new { @class = "form-control" })
-                    </div>
-                }
+                <div class="form-group col-3">
+                    <label asp-for="@Html.ViewData.Model.GenderId" class="col-sm-12 col-form-label">Gender</label>
+                    @Html.DropDownListFor(x => Model.GenderId, Model.Genders, String.Empty, htmlAttributes: new { @class = "form-control", @id = "Gender" })
+                </div>
+                <div class="form-group col-3">
+                    <label asp-for="@Html.ViewData.Model.ClassificationId" class="col-sm-12 col-form-label">Classification</label>
+                    @Html.DropDownListFor(x => Model.ClassificationId, Model.Classifications, String.Empty, htmlAttributes: new { @class = "form-control", @id = "Classification" })
+                </div>
+                <div class="form-group col-3">
+                    <label asp-for="@Html.ViewData.Model.CityId" class="col-sm-12 col-form-label">City</label>
+                    @Html.DropDownListFor(x => Model.CityId, Model.Cities, String.Empty, htmlAttributes: new { @class = "form-control", @id = "City" })
+                </div>
+                <div class="form-group col-3">
+                    <label asp-for="@Html.ViewData.Model.RegionId" class="col-sm-12 col-form-label">Region</label>
+                    @Html.DropDownListFor(x => Model.RegionId, Model.Regions, String.Empty, htmlAttributes: new { @class = "form-control", @id = "Region" })
+        
+                </div>                
                 <div class="form-group col-6">
-                    <label asp-for="@Html.ViewData.Model.LastPurchase" class="col-sm-12 col-form-label">Last Purchase Initial</label>
-                    @Html.TextBoxFor(model => model.LastPurchase, new { @class = "form-control", type = "date" })
+                    <label asp-for="@Html.ViewData.Model.LastPurchaseInitial" class="col-sm-12 col-form-label">Last Purchase Initial</label>
+                    @Html.TextBoxFor(model => model.LastPurchaseInitial, new { @class = "form-control", type = "date" })
                 </div>
                 <div class="form-group col-6">
-                    <label asp-for="@Html.ViewData.Model.LastPurchase" class="col-sm-12 col-form-label">Last Purchase Final</label>
-                    @Html.TextBoxFor(model => model.LastPurchase, new { @class = "form-control", type = "date" })
+                    <label asp-for="@Html.ViewData.Model.LastPurchaseFinal" class="col-sm-12 col-form-label">Last Purchase Final</label>
+                    @Html.TextBoxFor(model => model.LastPurchaseFinal, new { @class = "form-control", type = "date" })
                 </div>
                 @if (@ViewBag.IsAdmin)
                 {
                     <div class="form-group col-6">
-                        <label asp-for="@Html.ViewData.Model.UserId" class="col-sm-12 col-form-label">Seller</label>
-                        @Html.TextBoxFor(model => model.UserId, new { @class = "form-control" })
+                        <label asp-for="@Html.ViewData.Model.SellerId" class="col-sm-12 col-form-label">Seller</label>
+                        @Html.TextBoxFor(model => model.SellerId, new { @class = "form-control" })
                     </div>
                 }
-            <div class="form-group col-12">
-                <input type="submit" class="btn btn-secondary" value="Search" />
-                <input type="button" class="btn btn-secondary" value="Clear Filters" />
-            </div>
+                <div class="form-group col-12">
+                    <input type="submit" class="btn btn-secondary" value="Search" />
+                    <input type="button" class="btn btn-secondary" value="Clear Filters" />
+                </div>
             </div>
         </div>
     </fieldset>
@@ -73,29 +62,15 @@
     <table class="table">
         <thead>
             <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.ClassificationId)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Name)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Phone)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.GenderId)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.RegionId)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.LastPurchase)
-                </th>
+                <th>Classification</th>
+                <th>.Name</th>
+                <th>Phone</th>
+                <th>Gender</th>
+                <th>Region</th>
+                <th>Last Purchase</th>
                 @if (@ViewBag.IsAdmin)
                 {
-                    <th>
-                        @Html.DisplayNameFor(model => model.UserId)
-                    </th>
+                    <th>Seller</th>
                 }
             </tr>
         </thead>
@@ -104,7 +79,7 @@
             {
                 <tr>
                     <td>
-                        @Html.DisplayFor(modelItem => item.ClassificationId)
+                        @Html.DisplayFor(modelItem => item.ClassificationDescription)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.Name)
@@ -113,10 +88,10 @@
                         @Html.DisplayFor(modelItem => item.Phone)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.GenderId)
+                        @Html.DisplayFor(modelItem => item.GenderDescription)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.RegionId)
+                        @Html.DisplayFor(modelItem => item.RegionDescription)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.LastPurchase)
@@ -124,11 +99,41 @@
                     @if (@ViewBag.IsAdmin)
                     {
                         <td>
-                            @Html.DisplayFor(modelItem => item.UserId)
+                            @Html.DisplayFor(modelItem => item.SellerName)
                         </td>
                     }
                 </tr>
             }
         </tbody>
     </table>
+}
+
+@section Scripts {
+    <script type="text/javascript">
+        $('#City').change(function () {
+            var selectedCity = $("#City").val();
+            var regionsSelect = $('#Region');
+
+            regionsSelect.empty();
+            $.getJSON('@Url.Action("GetRegions")', { cityId: selectedCity }, function (regions) {
+                console.log("regions", regions);
+                if (regions != null && !jQuery.isEmptyObject(regions))
+                {
+                    if (selectedCity == null || selectedCity == '') {
+                        regionsSelect.append($('<option/>', {
+                            value: null,
+                            text: ""
+                        }));
+                    }
+
+                    $.each(regions, function (index, region) {
+                        regionsSelect.append($('<option/>', {
+                            value: region.value,
+                            text: region.text
+                        }));
+                    });
+                };
+            });
+        });
+    </script>
 }

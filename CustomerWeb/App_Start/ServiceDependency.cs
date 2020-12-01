@@ -16,6 +16,7 @@ namespace CustomerWeb.App_Start
         {
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped<IRestAPIService, RestAPIService>();
+            services.AddScoped<IFieldService, FieldService>();
             services.AddScoped<IAuthorizationService, AuthorizationService>();
             services.AddScoped<ICityService, CityService>();
             services.AddScoped<IClassificationService, ClassificationService>();

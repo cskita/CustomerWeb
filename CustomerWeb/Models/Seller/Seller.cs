@@ -1,6 +1,6 @@
-﻿namespace CustomerWeb.Models.Gender.ViewModel
+﻿namespace CustomerWeb.Models.Seller
 {
-    public class GenderViewModel
+    public class Seller
     {
         public int Id { get; set; }
         public string Name { get; set; }

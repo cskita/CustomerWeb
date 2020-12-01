@@ -1,20 +1,29 @@
-﻿using System;
-using System.ComponentModel;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace CustomerWeb.Models.Customer.InputModel
 {
     public class CustomerInputModel
     {
-        public int Id { get; set; }
         public string Name { get; set; }
         public string Phone { get; set; }
-
-        [Description("Last Purchase")]
-        public DateTime LastPurchase { get; set; }
-        public int GenderId { get; set; }
+        public int? GenderId { get; set; }
+        public IEnumerable<SelectListItem> Genders { get; set; }
         public int? CityId { get; set; }
+        public IEnumerable<SelectListItem> Cities { get; set; }
         public int? RegionId { get; set; }
+        public IEnumerable<SelectListItem> Regions { get; set; }
         public int? ClassificationId { get; set; }
-        public int? UserId { get; set; }
+        public IEnumerable<SelectListItem> Classifications { get; set; }
+        public int? SellerId { get; set; }
+        public IEnumerable<SelectListItem> Sellers { get; set; }
+
+        [DataType(DataType.Date)]
+        public DateTime? LastPurchaseInitial { get; set; }
+
+        [DataType(DataType.Date)]
+        public DateTime? LastPurchaseFinal { get; set; }
     }
 }
