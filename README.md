@@ -14,7 +14,7 @@ Model-View-ViewModel
 
 ## Technologies
 
-| Dependency | Version*
+| Dependency | Version
 | :--- | ---:
 | .NET Core | 3.1
 | ASP.NET MVC Core | 2.2.5
@@ -32,7 +32,7 @@ Model-View-ViewModel
 1. Open the solution in Visual Studio 2017 or higher.
 1. Select the **CustomerWeb** project.
 1. Open the _appsettings.Development.json_ file in the project root and update the value of `EndPointUrl` for the `CustomerAPI` URL to point to a API that exists on your local machine.
-1. Run the project.
+1. Run the application.
 
 For run the Rest API uses in this project you need to download o clone the project [CustomerAPI](https://github.com/cskita/CustomerAPI).
 
