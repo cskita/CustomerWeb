@@ -34,7 +34,7 @@ Model-View-ViewModel
 1. Open the _appsettings.Development.json_ file in the project root and update the value of `EndPointUrl` for the `CustomerAPI` URL to point to a API that exists on your local machine.
 1. Run the application.
 
-For run the Rest API uses in this project you need to download o clone the project [CustomerAPI](https://github.com/cskita/CustomerAPI).
+For run the Rest API uses in this project you need to download or clone the project [CustomerAPI](https://github.com/cskita/CustomerAPI).
 
 ## Configuration
 
