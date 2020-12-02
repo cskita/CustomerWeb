@@ -27,7 +27,7 @@ namespace CustomerWeb.Services.City
                 {
                     ContentType = _contentType,
                     Route = _route,
-                    MethodType = RequestMethodType.Get
+                    MethodType = RequestMethodTypeEnum.Get
                 };
 
                 return _restAPIService.Request<IEnumerable<CityModel>>(requestAPI);
@@ -46,7 +46,7 @@ namespace CustomerWeb.Services.City
                 {
                     ContentType = _contentType,
                     Route = $"{_route}/{id}",
-                    MethodType = RequestMethodType.Get
+                    MethodType = RequestMethodTypeEnum.Get
                 };
 
                 return _restAPIService.Request<CityModel>(requestAPI);

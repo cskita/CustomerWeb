@@ -30,7 +30,7 @@ namespace CustomerWeb.Services.Customer
                 {
                     ContentType = _contentType,
                     Route = _route,
-                    MethodType = RequestMethodType.Get,
+                    MethodType = RequestMethodTypeEnum.Get,
                     Body = customerInputModel
                 };
 

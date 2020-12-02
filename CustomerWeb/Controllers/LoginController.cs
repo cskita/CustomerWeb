@@ -3,6 +3,7 @@ using CustomerWeb.Models.Authorization.InputModel;
 using CustomerWeb.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using IAuthorizationService = CustomerWeb.Services.Authorization.IAuthorizationService;
+using CustomerWeb.Models.Enumerable;
 
 namespace CustomerWeb.Controllers
 {
@@ -31,7 +32,7 @@ namespace CustomerWeb.Controllers
         [Route("logout")]
         public IActionResult Logout()
         {
-            HttpContext.Session.Remove("UserToken");
+            HttpContext.Session.Remove(SessionEnum.UserSession.ToString());
 
             return View("Login");
         }

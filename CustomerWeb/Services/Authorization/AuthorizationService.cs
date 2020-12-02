@@ -29,7 +29,7 @@ namespace CustomerWeb.Services.Authorization
                     Body = login,
                     ContentType = _contentType,
                     Route = _route,
-                    MethodType = RequestMethodType.Post
+                    MethodType = RequestMethodTypeEnum.Post
                 });
 
                 string content = response.Content.ReadAsStringAsync().Result;

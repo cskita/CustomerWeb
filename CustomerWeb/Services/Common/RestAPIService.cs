@@ -12,6 +12,8 @@ using CustomerWeb.Models.Enumerable;
 using System.Linq;
 using System;
 using System.Web;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace CustomerWeb.Services.Common
 {
@@ -43,13 +45,41 @@ namespace CustomerWeb.Services.Common
             return httpClient;
         }
 
+        /*private string GetQueryString(object obj)
+        {
+            //.ParseExact(s, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+            var properties = from p in obj.GetType().GetProperties()
+                             where p.GetValue(obj, null) != null
+                             //where ((p.GetValue(obj, null) != null && DateTime.TryParse(p.GetValue(obj, null).ToString()))
+                             select p.Name + "=" + HttpUtility.UrlEncode(p.GetValue(obj, null).ToString());
+
+            return String.Join("&", properties.ToArray());
+        }*/
+
         private string GetQueryString(object obj)
         {
+            //.ParseExact(s, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+
             var properties = from p in obj.GetType().GetProperties()
                              where p.GetValue(obj, null) != null
                              select p.Name + "=" + HttpUtility.UrlEncode(p.GetValue(obj, null).ToString());
 
             return String.Join("&", properties.ToArray());
+        }
+        string GetQueryString1(object obj)
+        {
+            var properties = from p in obj.GetType().GetProperties()
+                             where p.GetValue(obj, null) != null
+                             select p;
+
+            if (properties != null && properties.Count() > 0) {
+                var step1 = JsonConvert.SerializeObject(properties);
+                var step2 = JsonConvert.DeserializeObject<IDictionary<string, string>>(step1);
+                var step3 = step2.Select(x => HttpUtility.UrlEncode(x.Key) + "=" + HttpUtility.UrlEncode(x.Value));
+                return string.Join("&", step3);
+            }
+            return null;
         }
 
         public HttpResponseMessage Request(RequestAPI requestAPI)
@@ -58,7 +88,7 @@ namespace CustomerWeb.Services.Common
 
             var httpClient = RequestHeader();
 
-            if (requestAPI.MethodType == RequestMethodType.Get)
+            if (requestAPI.MethodType == RequestMethodTypeEnum.Get)
             {
                 if (requestAPI.Body != null)
                 {
@@ -90,7 +120,7 @@ namespace CustomerWeb.Services.Common
 
                 var httpClient = RequestHeader();
 
-                if (requestAPI.MethodType == RequestMethodType.Get)
+                if (requestAPI.MethodType == RequestMethodTypeEnum.Get)
                 {
                     if (requestAPI.Body != null)
                     {

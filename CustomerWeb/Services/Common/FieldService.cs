@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
 using CustomerWeb.Models.Common;
+using System;
+using System.Collections;
 
 namespace CustomerWeb.Services.Common
 {
@@ -8,14 +10,24 @@ namespace CustomerWeb.Services.Common
     {
         public IEnumerable<SelectListItem> GetDropDownList<T>(BaseResult<T> responseAPI)
         {
-            if (responseAPI.Success)
+            if (responseAPI.Success && responseAPI.Data != null)
             {
-                return new SelectList
-                (
-                    (IEnumerable<T>)responseAPI.Data,
-                    "Id",
-                    "Name"
-                );
+                if (responseAPI.Data is IList)
+                    return new SelectList
+                    (
+                        (IEnumerable<object>)responseAPI.Data,
+                        "Id",
+                        "Name"
+                    );
+                else
+                    return new SelectList
+                    (
+                        new[] { responseAPI.Data } ,
+                        "Id",
+                        "Name"
+                    );
+
+
             }
 
             return null;

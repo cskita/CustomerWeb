@@ -7,6 +7,7 @@ using CustomerWeb.Services.Common;
 using CustomerWeb.Services.Customer;
 using CustomerWeb.Services.Gender;
 using CustomerWeb.Services.Region;
+using CustomerWeb.Services.Seller;
 
 namespace CustomerWeb.App_Start
 {
@@ -23,6 +24,7 @@ namespace CustomerWeb.App_Start
             services.AddScoped<ICustomerService, CustomerService>();
             services.AddScoped<IGenderService, GenderService>();
             services.AddScoped<IRegionService, RegionService>();
+            services.AddScoped<ISellerService, SellerService>();
         }
     }
 }

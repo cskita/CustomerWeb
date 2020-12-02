@@ -5,7 +5,7 @@
 
 <h2>Customers List</h2>
 
-@using (Html.BeginForm("Index", "Customer", FormMethod.Post))
+@using (Html.BeginForm("Index", "Customer", FormMethod.Post, htmlAttributes: new { @id = "form" }))
 {
     <fieldset>
         @Html.AntiForgeryToken()
@@ -18,21 +18,21 @@
                 </div>
                 <div class="form-group col-3">
                     <label asp-for="@Html.ViewData.Model.GenderId" class="col-sm-12 col-form-label">Gender</label>
-                    @Html.DropDownListFor(x => Model.GenderId, Model.Genders, String.Empty, htmlAttributes: new { @class = "form-control", @id = "Gender" })
+                    @Html.DropDownListFor(x => Model.GenderId, Model.Genders, String.Empty, htmlAttributes: new { @class = "form-control", @id = "GenderId" })
                 </div>
                 <div class="form-group col-3">
                     <label asp-for="@Html.ViewData.Model.ClassificationId" class="col-sm-12 col-form-label">Classification</label>
-                    @Html.DropDownListFor(x => Model.ClassificationId, Model.Classifications, String.Empty, htmlAttributes: new { @class = "form-control", @id = "Classification" })
+                    @Html.DropDownListFor(x => Model.ClassificationId, Model.Classifications, String.Empty, htmlAttributes: new { @class = "form-control", @id = "ClassificationId" })
                 </div>
                 <div class="form-group col-3">
                     <label asp-for="@Html.ViewData.Model.CityId" class="col-sm-12 col-form-label">City</label>
-                    @Html.DropDownListFor(x => Model.CityId, Model.Cities, String.Empty, htmlAttributes: new { @class = "form-control", @id = "City" })
+                    @Html.DropDownListFor(x => Model.CityId, Model.Cities, String.Empty, htmlAttributes: new { @class = "form-control", @id = "CityId" })
                 </div>
                 <div class="form-group col-3">
                     <label asp-for="@Html.ViewData.Model.RegionId" class="col-sm-12 col-form-label">Region</label>
-                    @Html.DropDownListFor(x => Model.RegionId, Model.Regions, String.Empty, htmlAttributes: new { @class = "form-control", @id = "Region" })
-        
-                </div>                
+                    @Html.DropDownListFor(x => Model.RegionId, Model.Regions, String.Empty, htmlAttributes: new { @class = "form-control", @id = "RegionId" })
+
+                </div>
                 <div class="form-group col-6">
                     <label asp-for="@Html.ViewData.Model.LastPurchaseInitial" class="col-sm-12 col-form-label">Last Purchase Initial</label>
                     @Html.TextBoxFor(model => model.LastPurchaseInitial, new { @class = "form-control", type = "date" })
@@ -45,25 +45,28 @@
                 {
                     <div class="form-group col-6">
                         <label asp-for="@Html.ViewData.Model.SellerId" class="col-sm-12 col-form-label">Seller</label>
-                        @Html.TextBoxFor(model => model.SellerId, new { @class = "form-control" })
+                        @Html.DropDownListFor(x => Model.SellerId, Model.Sellers, String.Empty, htmlAttributes: new { @class = "form-control", @id = "SellerId" })
                     </div>
                 }
                 <div class="form-group col-12">
-                    <input type="submit" class="btn btn-secondary" value="Search" />
-                    <input type="button" class="btn btn-secondary" value="Clear Filters" />
+                    <input type="submit" value="Search" class="btn btn-primary" />
+                    <input type="button" id="btnClear" class="btn btn-secondary" value="Clear Filters" />
                 </div>
             </div>
         </div>
     </fieldset>
 }
 
+<div id="customerList">
+</div>
+
 @if (@ViewBag.Customer != null)
 {
-    <table class="table">
+    <table class="table" id="tblCustomer">
         <thead>
             <tr>
                 <th>Classification</th>
-                <th>.Name</th>
+                <th>Name</th>
                 <th>Phone</th>
                 <th>Gender</th>
                 <th>Region</th>
@@ -110,29 +113,59 @@
 
 @section Scripts {
     <script type="text/javascript">
-        $('#City').change(function () {
-            var selectedCity = $("#City").val();
-            var regionsSelect = $('#Region');
+        $(document).ready(function () {
+            var isAdminUser = JSON.parse('@ViewBag.IsAdmin'.toLowerCase());
 
-            regionsSelect.empty();
-            $.getJSON('@Url.Action("GetRegions")', { cityId: selectedCity }, function (regions) {
-                console.log("regions", regions);
-                if (regions != null && !jQuery.isEmptyObject(regions))
+            var clearFields = function () {
+                $("#Name").val("");
+                $("#GenderId").val("");
+                $("#ClassificationId").val("");
+                $("#CityId").val("");
+                $("#RegionId").val("");
+                $("#LastPurchaseInitial").val("");
+                $("#LastPurchaseFinal").val("");
+                if (isAdminUser)
                 {
-                    if (selectedCity == null || selectedCity == '') {
-                        regionsSelect.append($('<option/>', {
-                            value: null,
-                            text: ""
-                        }));
-                    }
+                    $("#SellerId").val("");
+                }
+            };
 
-                    $.each(regions, function (index, region) {
-                        regionsSelect.append($('<option/>', {
-                            value: region.value,
-                            text: region.text
-                        }));
-                    });
-                };
+            $("#btnClear").click(function () {
+                console.log("entrou1");
+                clearFields();
+
+                /*$('#form').each(function () {
+                    console.log("entrou2");
+                    $("#CityId").val("");
+                    console.log("entrou3");
+                    return $('#CityId').change();
+                });*/
+            });
+
+            $('#CityId').change(function () {
+                var selectedCity = $("#CityId").val();
+                var regionsSelect = $('#RegionId');
+                console.log("selectedCity", selectedCity);
+                console.log("regionsSelect", regionsSelect);
+
+                regionsSelect.empty();
+                $.getJSON('@Url.Action("GetRegions")', { cityId: selectedCity }, function (regions) {
+                    if (regions != null && !jQuery.isEmptyObject(regions)) {
+                        if (selectedCity == null || selectedCity == '') {
+                            regionsSelect.append($('<option/>', {
+                                value: null,
+                                text: ""
+                            }));
+                        }
+
+                        $.each(regions, function (index, region) {
+                            regionsSelect.append($('<option/>', {
+                                value: region.value,
+                                text: region.text
+                            }));
+                        });
+                    };
+                });
             });
         });
     </script>

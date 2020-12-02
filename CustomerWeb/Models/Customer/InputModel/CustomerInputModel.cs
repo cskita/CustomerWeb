@@ -8,7 +8,6 @@ namespace CustomerWeb.Models.Customer.InputModel
     public class CustomerInputModel
     {
         public string Name { get; set; }
-        public string Phone { get; set; }
         public int? GenderId { get; set; }
         public IEnumerable<SelectListItem> Genders { get; set; }
         public int? CityId { get; set; }
@@ -21,9 +20,9 @@ namespace CustomerWeb.Models.Customer.InputModel
         public IEnumerable<SelectListItem> Sellers { get; set; }
 
         [DataType(DataType.Date)]
-        public DateTime? LastPurchaseInitial { get; set; }
+        public string LastPurchaseInitial { get; set; }
 
         [DataType(DataType.Date)]
-        public DateTime? LastPurchaseFinal { get; set; }
+        public string LastPurchaseFinal { get; set; }
     }
 }

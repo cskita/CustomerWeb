@@ -27,7 +27,7 @@ namespace CustomerWeb.Services.Classification
                 {
                     ContentType = _contentType,
                     Route = _route,
-                    MethodType = RequestMethodType.Get
+                    MethodType = RequestMethodTypeEnum.Get
                 };
 
                 return _restAPIService.Request<IEnumerable<ClassificationModel>>(requestAPI);

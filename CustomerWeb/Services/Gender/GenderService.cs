@@ -27,7 +27,7 @@ namespace CustomerWeb.Services.Gender
                 {
                     ContentType = _contentType,
                     Route = _route,
-                    MethodType = RequestMethodType.Get
+                    MethodType = RequestMethodTypeEnum.Get
                 };
 
                 return _restAPIService.Request<IEnumerable<GenderModel>>(requestAPI);

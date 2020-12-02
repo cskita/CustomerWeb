@@ -1,6 +1,6 @@
 ﻿namespace CustomerWeb.Models.Enumerable
 {
-    public enum RequestMethodType
+    public enum RequestMethodTypeEnum
     {
         Get,
         Post,

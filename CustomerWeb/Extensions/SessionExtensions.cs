@@ -1,7 +1,8 @@
-﻿using CustomerWeb.Models.Authorization.ViewModel;
-using CustomerWeb.Models.User.ViewModel;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using System.Text.Json;
+using CustomerWeb.Models.Authorization.ViewModel;
+using CustomerWeb.Models.Enumerable;
+using CustomerWeb.Models.User.ViewModel;
 
 namespace CustomerWeb.Extensions
 {
@@ -20,7 +21,7 @@ namespace CustomerWeb.Extensions
 
         public static bool IsAuthenticated(this ISession session)
         {
-            if (session.Get("UserToken") != null)
+            if (session.Get(SessionEnum.UserSession.ToString()) != null)
                 return true;
 
             return false;
@@ -29,7 +30,7 @@ namespace CustomerWeb.Extensions
         public static string GetUserToken(this ISession session)
         {
             if (IsAuthenticated(session))
-                return session.Get<AuthorizationViewModel>("UserToken").Token;
+                return session.Get<AuthorizationViewModel>(SessionEnum.UserSession.ToString()).Token;
 
             return null;
         }
@@ -37,16 +38,14 @@ namespace CustomerWeb.Extensions
         public static UserViewModel GetUserSession(this ISession session)
         {
             if (IsAuthenticated(session))
-                return session.Get<AuthorizationViewModel>("UserToken").User;
+                return session.Get<AuthorizationViewModel>(SessionEnum.UserSession.ToString()).User;
 
             return null;
         }
 
         public static void SetUserSession(this ISession session, AuthorizationViewModel data)
         {
-            session.Set("UserToken", data);
-            //session.SetUserSession(data);
+            session.Set(SessionEnum.UserSession.ToString(), data);
         }
-
     }
 }
