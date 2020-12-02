@@ -1,11 +1,10 @@
-﻿using CustomerWeb.Models.Authorization.InputModel;
-using CustomerWeb.Models.Authorization.ViewModel;
-using CustomerWeb.Models.Common;
+﻿using CustomerWeb.Models.Common;
+using CustomerWeb.Models.Authorization;
 
 namespace CustomerWeb.Services.Authorization
 {
     public interface IAuthorizationService
     {
-        BaseResult<AuthorizationViewModel> RequestToken(AuthorizationInputModel login);
+        BaseResult<AuthorizationResponse> RequestUserSession(AuthorizationRequest login);
     }
 }

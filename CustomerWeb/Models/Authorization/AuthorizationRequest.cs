@@ -1,21 +1,11 @@
-﻿using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace CustomerWeb.Models.Authorization.InputModel
+namespace CustomerWeb.Models.Authorization
 {
-    public class AuthorizationInputModel
+    public class AuthorizationRequest
     {
-        [StringLength(50)]
-        [Required]
-        [EmailAddress]
-        [Description("E-mail")]
         public string Email { get; set; }
-
-        [StringLength(40)]
-        [Required]
-        [DataType(DataType.Password)]
         public string Password { get; set; }
 
         public static string GetPasswordHash(string input)

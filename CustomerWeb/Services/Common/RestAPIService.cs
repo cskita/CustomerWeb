@@ -1,19 +1,14 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using Newtonsoft.Json;
-using CustomerWeb.Models.AppSettings;
-using CustomerWeb.Models.Authorization.ViewModel;
-using CustomerWeb.Models.Common;
 using Microsoft.AspNetCore.Http;
+using CustomerWeb.Models.AppSettings;
+using CustomerWeb.Models.Common;
 using CustomerWeb.Extensions;
 using CustomerWeb.Models.Enumerable;
-using System.Linq;
-using System;
-using System.Web;
-using System.Collections;
-using System.Collections.Generic;
 
 namespace CustomerWeb.Services.Common
 {
@@ -21,12 +16,15 @@ namespace CustomerWeb.Services.Common
     {
         private readonly CustomerAPIOptions _customerAPIOptions;
         private readonly IHttpContextAccessor _session;
+        private readonly IFieldService _fieldService;
 
         public RestAPIService(CustomerAPIOptions customerAPIOptions,
-                              IHttpContextAccessor session)
+                              IHttpContextAccessor session,
+                              IFieldService fieldService)
         {
             _customerAPIOptions = customerAPIOptions;
             _session = session;
+            _fieldService = fieldService;
         }
 
         private HttpClient RequestHeader()
@@ -45,71 +43,6 @@ namespace CustomerWeb.Services.Common
             return httpClient;
         }
 
-        /*private string GetQueryString(object obj)
-        {
-            //.ParseExact(s, "yyyy-MM-dd", CultureInfo.InvariantCulture);
-
-            var properties = from p in obj.GetType().GetProperties()
-                             where p.GetValue(obj, null) != null
-                             //where ((p.GetValue(obj, null) != null && DateTime.TryParse(p.GetValue(obj, null).ToString()))
-                             select p.Name + "=" + HttpUtility.UrlEncode(p.GetValue(obj, null).ToString());
-
-            return String.Join("&", properties.ToArray());
-        }*/
-
-        private string GetQueryString(object obj)
-        {
-            //.ParseExact(s, "yyyy-MM-dd", CultureInfo.InvariantCulture);
-
-            var properties = from p in obj.GetType().GetProperties()
-                             where p.GetValue(obj, null) != null
-                             select p.Name + "=" + HttpUtility.UrlEncode(p.GetValue(obj, null).ToString());
-
-            return String.Join("&", properties.ToArray());
-        }
-        string GetQueryString1(object obj)
-        {
-            var properties = from p in obj.GetType().GetProperties()
-                             where p.GetValue(obj, null) != null
-                             select p;
-
-            if (properties != null && properties.Count() > 0) {
-                var step1 = JsonConvert.SerializeObject(properties);
-                var step2 = JsonConvert.DeserializeObject<IDictionary<string, string>>(step1);
-                var step3 = step2.Select(x => HttpUtility.UrlEncode(x.Key) + "=" + HttpUtility.UrlEncode(x.Value));
-                return string.Join("&", step3);
-            }
-            return null;
-        }
-
-        public HttpResponseMessage Request(RequestAPI requestAPI)
-        {
-            string url = $"{_customerAPIOptions.EndPointUrl}/{requestAPI.Route}";
-
-            var httpClient = RequestHeader();
-
-            if (requestAPI.MethodType == RequestMethodTypeEnum.Get)
-            {
-                if (requestAPI.Body != null)
-                {
-                    var queryParams = GetQueryString(requestAPI.Body);
-                    if (!String.IsNullOrEmpty(queryParams))
-                        url = $"{url}?{queryParams}";
-                }
-
-                return httpClient.GetAsync(url).Result;
-            }
-            else
-            {
-                return httpClient.PostAsync(
-                    url,
-                    new StringContent(
-                        JsonConvert.SerializeObject(requestAPI.Body),
-                        Encoding.UTF8,
-                        requestAPI.ContentType)).Result;
-            }
-        }
-
         public BaseResult<T> Request<T>(RequestAPI requestAPI) where T : class
         {
             try
@@ -124,7 +57,7 @@ namespace CustomerWeb.Services.Common
                 {
                     if (requestAPI.Body != null)
                     {
-                        var queryParams = GetQueryString(requestAPI.Body);
+                        var queryParams = _fieldService.GetQueryString(requestAPI.Body);
 
                         if (!String.IsNullOrEmpty(queryParams))
                             url = $"{url}?{queryParams}";
@@ -151,6 +84,10 @@ namespace CustomerWeb.Services.Common
                     if (responseAPI.Success && responseAPI.Data != null)
                         return BaseResult<T>.OK(responseAPI.Data);
                 }
+                else if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    return BaseResult<T>.NotOK("Unauthorized. Please logg in.", (int)response.StatusCode);
+                }
 
                 return BaseResult<T>.NotOK("An error occurred while communicating with the server. Please try again.");
             }
@@ -159,26 +96,5 @@ namespace CustomerWeb.Services.Common
                 return BaseResult<T>.NotOK(e.Message);
             }
         }
-
-        public HttpResponseMessage RequestUserSession(RequestAPI requestAPI)
-        {
-            var response = Request(requestAPI);
-
-            string content = response.Content.ReadAsStringAsync().Result;
-
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                var responseAPI = JsonConvert.DeserializeObject<ResponseAPI<AuthorizationViewModel>>(content);
-
-                if (responseAPI.Success && responseAPI.Data != null)
-                {
-                    _session.HttpContext.Session.SetUserSession(responseAPI.Data);
-                }
-            }
-
-            return response;
-
-        }
-
     }
 }

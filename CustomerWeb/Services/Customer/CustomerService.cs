@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Net;
 using System.Collections.Generic;
-using Newtonsoft.Json;
 using CustomerWeb.Models.Common;
-using CustomerWeb.Models.Customer.ViewModel;
 using CustomerWeb.Models.Enumerable;
 using CustomerWeb.Services.Common;
-using CustomerWeb.Models.Customer.InputModel;
+using CustomerModel = CustomerWeb.Models.Customer;
 
 namespace CustomerWeb.Services.Customer
 {
@@ -22,7 +19,7 @@ namespace CustomerWeb.Services.Customer
             _restAPIService = restAPIService;
         }
 
-        public BaseResult<IEnumerable<CustomerViewModel>> Get(CustomerInputModel customerInputModel)
+        public BaseResult<IEnumerable<CustomerModel.Customer>> Get(CustomerModel.CustomerFilter customerInputModel)
         {
             try
             {
@@ -34,11 +31,11 @@ namespace CustomerWeb.Services.Customer
                     Body = customerInputModel
                 };
 
-                return _restAPIService.Request<IEnumerable<CustomerViewModel>>(requestAPI);
+                return _restAPIService.Request<IEnumerable<CustomerModel.Customer>>(requestAPI);
             }
             catch (Exception e)
             {
-                return BaseResult<IEnumerable<CustomerViewModel>>.NotOK(e.Message);
+                return BaseResult<IEnumerable<CustomerModel.Customer>>.NotOK(e.Message);
             }
         }
     }

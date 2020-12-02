@@ -1,6 +1,6 @@
-﻿namespace CustomerWeb.Models.User.ViewModel
+﻿namespace CustomerWeb.Models.User
 {
-    public class UserViewModel
+    public class User
     {
         public int Id { get; set; }
         public string Login { get; set; }

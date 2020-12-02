@@ -1,57 +1,50 @@
-﻿using System;
-using System.Net;
-using Newtonsoft.Json;
-using CustomerWeb.Models.Authorization.InputModel;
-using CustomerWeb.Models.Authorization.ViewModel;
+﻿using System.Net;
+using Microsoft.AspNetCore.Http;
+using CustomerWeb.Models.Authorization;
 using CustomerWeb.Models.Common;
 using CustomerWeb.Models.Enumerable;
 using CustomerWeb.Services.Common;
+using CustomerWeb.Extensions;
 
 namespace CustomerWeb.Services.Authorization
 {
     public class AuthorizationService : IAuthorizationService
     {
         private readonly IRestAPIService _restAPIService;
+        private readonly IHttpContextAccessor _session;
 
         private string _route = "auth";
         private string _contentType = "application/json";
 
-        public AuthorizationService(IRestAPIService restAPIService)
+        public AuthorizationService(IRestAPIService restAPIService,
+                                    IHttpContextAccessor session)
         {
             _restAPIService = restAPIService;
+            _session = session;
         }
 
-        public BaseResult<AuthorizationViewModel> RequestToken(AuthorizationInputModel login)
+        public BaseResult<AuthorizationResponse> RequestUserSession(AuthorizationRequest login)
         {
-            try
+            var requestAPI = new RequestAPI
             {
-                var response = _restAPIService.RequestUserSession(new RequestAPI { 
-                    Body = login,
-                    ContentType = _contentType,
-                    Route = _route,
-                    MethodType = RequestMethodTypeEnum.Post
-                });
+                Body = login,
+                ContentType = _contentType,
+                Route = _route,
+                MethodType = RequestMethodTypeEnum.Post
+            };
 
-                string content = response.Content.ReadAsStringAsync().Result;
+            var responseAPI = _restAPIService.Request<AuthorizationResponse>(requestAPI);
 
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    var responseAPI = JsonConvert.DeserializeObject<ResponseAPI<AuthorizationViewModel>>(content);
-
-                    if (responseAPI.Success && responseAPI.Data != null);
-                        return BaseResult<AuthorizationViewModel>.OK(responseAPI.Data);
-                }
-                else if (response.StatusCode == HttpStatusCode.Unauthorized)
-                {
-                    return BaseResult<AuthorizationViewModel>.NotOK("The email and / or password entered is invalid.Please try again.");
-                }
-                
-                return BaseResult<AuthorizationViewModel>.NotOK("An error occurred while communicating with the server. Please try again.");
-            }
-            catch (Exception e)
+            if (responseAPI.Success && responseAPI.Data != null)
             {
-                return BaseResult<AuthorizationViewModel>.NotOK(e.Message);
+                _session.HttpContext.Session.SetUserSession(responseAPI.Data);
             }
+            else if (responseAPI.Code == (int)HttpStatusCode.Unauthorized)
+            {
+                return BaseResult<AuthorizationResponse>.NotOK("The email and/or password entered is invalid. Please try again.", responseAPI.Code);
+            }
+
+            return responseAPI;
         }
     }
 }

@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Text.Json;
-using CustomerWeb.Models.Authorization.ViewModel;
+using CustomerWeb.Models.Authorization;
 using CustomerWeb.Models.Enumerable;
-using CustomerWeb.Models.User.ViewModel;
+using CustomerWeb.Models.User;
 
 namespace CustomerWeb.Extensions
 {
@@ -30,20 +30,20 @@ namespace CustomerWeb.Extensions
         public static string GetUserToken(this ISession session)
         {
             if (IsAuthenticated(session))
-                return session.Get<AuthorizationViewModel>(SessionEnum.UserSession.ToString()).Token;
+                return session.Get<AuthorizationResponse>(SessionEnum.UserSession.ToString()).Token;
 
             return null;
         }
 
-        public static UserViewModel GetUserSession(this ISession session)
+        public static User GetUserSession(this ISession session)
         {
             if (IsAuthenticated(session))
-                return session.Get<AuthorizationViewModel>(SessionEnum.UserSession.ToString()).User;
+                return session.Get<AuthorizationResponse>(SessionEnum.UserSession.ToString()).User;
 
             return null;
         }
 
-        public static void SetUserSession(this ISession session, AuthorizationViewModel data)
+        public static void SetUserSession(this ISession session, AuthorizationResponse data)
         {
             session.Set(SessionEnum.UserSession.ToString(), data);
         }

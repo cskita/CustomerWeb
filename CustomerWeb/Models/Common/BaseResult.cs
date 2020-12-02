@@ -6,23 +6,26 @@ namespace CustomerWeb.Models.Common
 {
     public class BaseResult
     {
+        public int Code { get; set; }
         public bool Success { get; set; }
 
         public List<string> Messages { get; set; }
 
-        public static BaseResult NotOK(List<string> message)
+        public static BaseResult NotOK(List<string> message, int code = 0)
         {
             return new BaseResult
             {
+                Code = code,
                 Success = false,
                 Messages = message
             };
         }
 
-        public static BaseResult NotOK(string message)
+        public static BaseResult NotOK(string message, int code = 0)
         {
             return new BaseResult
             {
+                Code = code,
                 Success = false,
                 Messages = ConvertMenssageList(message)
             };
@@ -45,46 +48,29 @@ namespace CustomerWeb.Models.Common
         {
             return new BaseResult<T>()
             {
+                Code = 0,
                 Success = true,
                 Messages = message,
                 Data = data
             };
         }
 
-        public static BaseResult<T> NotOK(T data, List<string> message)
+        public static new BaseResult<T> NotOK(string message, int code = 0)
         {
             return new BaseResult<T>()
             {
-                Success = false,
-                Messages = message,
-                Data = data
-            };
-        }
-
-        public static BaseResult<T> NotOK(T data, string message)
-        {
-            return new BaseResult<T>()
-            {
-                Success = false,
-                Messages = ConvertMenssageList(message),
-                Data = data
-            };
-        }
-
-        public static new BaseResult<T> NotOK(string message)
-        {
-            return new BaseResult<T>()
-            {
+                Code = code,
                 Success = false,
                 Messages = ConvertMenssageList(message),
                 Data = default(T)
             };
         }
 
-        public static new BaseResult<T> NotOK(List<string> message)
+        public static new BaseResult<T> NotOK(List<string> message, int code = 0)
         {
             return new BaseResult<T>()
             {
+                Code = code,
                 Success = false,
                 Messages = message,
                 Data = default(T)

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace CustomerWeb.Models.Customer.ViewModel
+namespace CustomerWeb.ViewModels.Customer
 {
     public class CustomerViewModel
     {

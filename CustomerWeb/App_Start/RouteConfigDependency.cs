@@ -1,25 +1,20 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CustomerWeb.App_Start
 {
-    public static class RouteConfig
+    public static class RouteConfigDependency
     {
-        public static void AddRouteConfig(this IServiceCollection services)
+        public static void AddRouteConfigDependency(this IServiceCollection services)
         {
             services.AddRouting(options =>
             {
                 options.LowercaseUrls = true;
             });
 
-            services.AddAuthorization(options =>
-            {
-                options.FallbackPolicy = new AuthorizationPolicyBuilder()
-                    .RequireAuthenticatedUser()
-                    .Build();
-            });
+            services.AddAuthorization();
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(cookieOptions => {
                 cookieOptions.LoginPath = "/login";
@@ -28,7 +23,6 @@ namespace CustomerWeb.App_Start
             services.ConfigureApplicationCookie(config =>
             {
                 config.LoginPath = "/login";
-                config.AccessDeniedPath = "/login";
             });
 
             services.AddRazorPages()
@@ -36,5 +30,16 @@ namespace CustomerWeb.App_Start
                     options.RootDirectory = "/Views";
                 }).SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
         }
+
+        public static void UseRouteDependency(this IApplicationBuilder app)
+        {
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
+            });
+        }
+
     }
 }

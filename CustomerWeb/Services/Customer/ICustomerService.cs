@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
 using CustomerWeb.Models.Common;
-using CustomerWeb.Models.Customer.InputModel;
-using CustomerWeb.Models.Customer.ViewModel;
+using CustomerModel = CustomerWeb.Models.Customer;
 
 namespace CustomerWeb.Services.Customer
 {
     public interface ICustomerService
     {
-        BaseResult<IEnumerable<CustomerViewModel>> Get(CustomerInputModel customerInputModel);
+        BaseResult<IEnumerable<CustomerModel.Customer>> Get(CustomerModel.CustomerFilter customerInputModel);
     }
 }

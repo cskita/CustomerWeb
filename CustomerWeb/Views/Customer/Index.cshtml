@@ -1,4 +1,4 @@
-﻿@model CustomerWeb.Models.Customer.InputModel.CustomerInputModel
+﻿@model CustomerWeb.ViewModels.Customer.CustomerInputModel
 @{
     ViewData["Title"] = "Customers List";
 }
@@ -45,7 +45,7 @@
                 {
                     <div class="form-group col-6">
                         <label asp-for="@Html.ViewData.Model.SellerId" class="col-sm-12 col-form-label">Seller</label>
-                        @Html.DropDownListFor(x => Model.SellerId, Model.Sellers, String.Empty, htmlAttributes: new { @class = "form-control", @id = "SellerId" })
+                        @Html.DropDownListFor(x => Model.SellerId, (IEnumerable<SelectListItem>)Model.Sellers, String.Empty, htmlAttributes: new { @class = "form-control", @id = "SellerId" })
                     </div>
                 }
                 <div class="form-group col-12">
@@ -56,9 +56,6 @@
         </div>
     </fieldset>
 }
-
-<div id="customerList">
-</div>
 
 @if (@ViewBag.Customer != null)
 {
@@ -78,7 +75,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in ViewBag.Customer as IEnumerable<CustomerWeb.Models.Customer.ViewModel.CustomerViewModel>)
+            @foreach (var item in ViewBag.Customer as IEnumerable<CustomerWeb.ViewModels.Customer.CustomerViewModel>)
             {
                 <tr>
                     <td>
@@ -131,22 +128,12 @@
             };
 
             $("#btnClear").click(function () {
-                console.log("entrou1");
                 clearFields();
-
-                /*$('#form').each(function () {
-                    console.log("entrou2");
-                    $("#CityId").val("");
-                    console.log("entrou3");
-                    return $('#CityId').change();
-                });*/
             });
 
             $('#CityId').change(function () {
                 var selectedCity = $("#CityId").val();
                 var regionsSelect = $('#RegionId');
-                console.log("selectedCity", selectedCity);
-                console.log("regionsSelect", regionsSelect);
 
                 regionsSelect.empty();
                 $.getJSON('@Url.Action("GetRegions")', { cityId: selectedCity }, function (regions) {

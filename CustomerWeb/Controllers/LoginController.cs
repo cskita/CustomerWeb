@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using CustomerWeb.Models.Authorization.InputModel;
-using CustomerWeb.Extensions;
 using Microsoft.AspNetCore.Authorization;
-using IAuthorizationService = CustomerWeb.Services.Authorization.IAuthorizationService;
+using CustomerWeb.Extensions;
 using CustomerWeb.Models.Enumerable;
+using CustomerWeb.Models.Authorization;
+using CustomerWeb.ViewModels.Login;
+using IAuthorizationService = CustomerWeb.Services.Authorization.IAuthorizationService;
 
 namespace CustomerWeb.Controllers
 {
@@ -40,17 +41,21 @@ namespace CustomerWeb.Controllers
         [Route("login")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Login(AuthorizationInputModel authorizationInputModel)
+        public IActionResult Login(LoginInputModel loginInputModel)
         {
             if (!ModelState.IsValid)
             {
-                return View(authorizationInputModel);
+                return View(loginInputModel);
             }
 
             ViewData["Messages"] = null;
-            authorizationInputModel.Password = AuthorizationInputModel.GetPasswordHash(authorizationInputModel.Password);
+            var authorizationRequest = new AuthorizationRequest
+            {
+                Email = loginInputModel.Email,
+                Password = AuthorizationRequest.GetPasswordHash(loginInputModel.Password)
+            };
 
-            var result = _authorizationService.RequestToken(authorizationInputModel);
+            var result = _authorizationService.RequestUserSession(authorizationRequest);
 
             if (!result.Success)
             {

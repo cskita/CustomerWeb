@@ -1,27 +1,23 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using CustomerWeb.Extensions;
 using CustomerWeb.Services.Customer;
-using CustomerWeb.Models.Customer.InputModel;
-using CustomerWeb.Models.Customer.ViewModel;
+using CustomerWeb.ViewModels.Customer;
 using CustomerWeb.Models.Common;
 using CustomerWeb.Services.City;
 using CustomerWeb.Models.City;
 using CustomerWeb.Services.Classification;
 using CustomerWeb.Services.Gender;
 using CustomerWeb.Services.Region;
-using CustomerWeb.Models.Classification;
-using CustomerWeb.Models.Gender;
-using CustomerWeb.Models.Region;
-using CustomerWeb.Models.Seller;
 using CustomerWeb.Services.Seller;
 using CustomerWeb.Services.Common;
+using AutoMapper;
+using CustomerWeb.Models;
+using CustomerWeb.Models.Customer;
 
 namespace CustomerWeb.Controllers
 {
-    [AllowAnonymous]
     public class CustomerController : Controller
     {
 
@@ -32,6 +28,7 @@ namespace CustomerWeb.Controllers
         private readonly IRegionService _regionService;
         private readonly ISellerService _sellerService;
         private readonly IFieldService _fieldService;
+        private readonly IMapper _mapper;
 
         private bool _isAuthenticated;
 
@@ -41,7 +38,8 @@ namespace CustomerWeb.Controllers
                                   IGenderService genderService,
                                   IRegionService regionService,
                                   ISellerService sellerService,
-                                  IFieldService fieldService)
+                                  IFieldService fieldService,
+                                  IMapper mapper)
         {
             _customerService = customerService;
             _cityService = cityService;
@@ -50,6 +48,7 @@ namespace CustomerWeb.Controllers
             _regionService = regionService;
             _sellerService = sellerService;
             _fieldService = fieldService;
+            _mapper = mapper;
 
             ViewData["Messages"] = null;
             ViewData["IsAdmin"] = false;
@@ -71,69 +70,6 @@ namespace CustomerWeb.Controllers
             return View(customer);
         }
 
-        [HttpGet]
-        public ActionResult GetRegions(int? cityId)
-        {
-            if (cityId.HasValue)
-                return GetRegionsByCityId(cityId.Value);
-
-            return Json(_fieldService.GetDropDownList(_regionService.Get()));
-        }
-
-        public ActionResult GetRegionsByCityId(int cityId)
-        {
-            BaseResult<City> result = _cityService.GetById(cityId);
-
-            if (result.Success && result.Data != null)
-            {
-                return Json(_fieldService.GetDropDownList(_regionService.GetById(result.Data.RegionId)));
-            }
-
-            return null;
-        }
-
-        [HttpGet]
-        public ActionResult GetCitiesByRegionId(int? regionId)
-        {
-            BaseResult<City> result = _cityService.GetById(regionId);
-
-            if (result.Success)
-            {
-                IEnumerable<SelectListItem> regions = new SelectList
-                    (
-                        (System.Collections.IEnumerable)result.Data,
-                        "Id",
-                        "Name"
-                    );
-
-                return Json(regions);
-            }
-
-            return null;
-        }
-
-        [HttpPost]
-        [Route("customer/list")]
-        public JsonResult List(CustomerInputModel customerInputModel)
-        {
-            _isAuthenticated = HttpContext.Session.IsAuthenticated();
-
-            var userSession = HttpContext.Session.GetUserSession();
-            ViewData["IsAdmin"] = userSession?.IsAdmin ?? false;
-            ViewData["LoggedIn"] = _isAuthenticated;
-
-            ViewData["Messages"] = null;
-
-            if (!(userSession?.IsAdmin ?? false))
-            {
-                customerInputModel.SellerId = userSession.Id;
-            }
-
-            var result = _customerService.Get(customerInputModel);
-
-            return Json(result);
-        }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Index(CustomerInputModel customerInputModel)
@@ -151,7 +87,9 @@ namespace CustomerWeb.Controllers
                 customerInputModel.SellerId = userSession.Id;
             }
 
-            BaseResult<IEnumerable<CustomerViewModel>> result = _customerService.Get(customerInputModel);
+            var customerFilter = _mapper.Map<CustomerFilter>(customerInputModel);
+
+            var result = _customerService.Get(customerFilter);
 
             ModelState.Clear();
 
@@ -161,21 +99,23 @@ namespace CustomerWeb.Controllers
             }
             else
             {
-                ViewData["Customer"] = result.Data;
+                ViewData["Customer"] = _mapper.Map<IEnumerable<CustomerViewModel>>(result.Data);
+
+                var customer = GetFilters();
+                customerInputModel.Cities = customer.Cities;
+                customerInputModel.Classifications = customer.Classifications;
+
+                if (customerInputModel.CityId.HasValue)
+                    customerInputModel.Regions = GetRegionsByCityId(customerInputModel.CityId.Value);
+                else
+                    customerInputModel.Regions = customer.Regions;
+
+                customerInputModel.Genders = customer.Genders;
+                customerInputModel.Sellers = customer.Sellers;
             }
-
-
-            var customer = GetFilters();
-            customerInputModel.Cities = customer.Cities;
-            customerInputModel.Classifications = customer.Classifications;
-            customerInputModel.Regions = customer.Regions;
-            customerInputModel.Genders = customer.Genders;
-            customerInputModel.Sellers = customer.Sellers;
 
             return View(customerInputModel);
         }
-
-        #region DropDown
 
         public CustomerInputModel GetFilters()
         {
@@ -191,27 +131,25 @@ namespace CustomerWeb.Controllers
             return customer;
         }
 
-        private IEnumerable<SelectListItem> GetRegions()
+        [HttpGet]
+        public ActionResult GetRegions(int? cityId)
         {
-            BaseResult<IEnumerable<Region>> result = _regionService.Get();
+            if (cityId.HasValue)
+                return Json(GetRegionsByCityId(cityId.Value));
 
-            if (result.Success)
+            return Json(_fieldService.GetDropDownList(_regionService.Get()));
+        }
+
+        public IEnumerable<SelectListItem> GetRegionsByCityId(int cityId)
+        {
+            BaseResult<City> result = _cityService.GetById(cityId);
+
+            if (result.Success && result.Data != null)
             {
-                return CreateDropDown(result.Data);
+                return _fieldService.GetDropDownList(_regionService.GetById(result.Data.RegionId));
             }
 
             return null;
         }
-
-        private SelectList CreateDropDown(IEnumerable<object> data)
-        {
-            return new SelectList
-            (
-                data,
-                "Id",
-                "Name"
-            );
-        }
-        #endregion
     }
 }
