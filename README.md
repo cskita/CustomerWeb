@@ -5,6 +5,8 @@
 ## Design Patterns
 
 Model-View-Controller
+Dependency Injection
+Inversion of Control
 
 ## Solution Projects
 
